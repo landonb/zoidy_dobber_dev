@@ -1,2 +1,15 @@
 ---
 # defaults file for zoidy_dob-dev
+
+# YOU: Set these to setup Hamster Dob & Nark for development.
+zoidy_dob_dev_basedir: ""
+
+# YOU: List paths to third party libraries you also hack on,
+# i.e., list projects you want to `pip install -U -e .`.
+zoidy_dob_dev_pip_paths: []
+
+# YOU: A list of dob plugins on which to run: `<dob-plugin-xxx> install`.
+zoidy_dob_dev_plugin_paths: []
+
+zoidy_dob_dev_user_local_bin_dir: "{{ ansible_env.HOME }}/.local/bin"
+

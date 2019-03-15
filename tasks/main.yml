@@ -1,1 +1,9 @@
 ---
+# Main task: Load package installers, or not, based on tags.
+
+- name: Load all tasks
+  include_role:
+    name: zoidy_dob-dev
+    tasks_from: all
+  tags: always
+
