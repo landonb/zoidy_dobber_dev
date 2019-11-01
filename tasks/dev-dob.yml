@@ -53,12 +53,41 @@
 #   # but we don't expect them to change, so save a little time-n-space.
 #   mkvirtualenv -a $(pwd) --python=/usr/bin/python3.5 --system-site-packages dob
 
+# 2019-10-31 17:05: Issue with using system packages:
+#
+#      --system-site-packages \
+#
+# 2019-10-31: When did this start happening? Not sure because
+# I have not build since spring.
+#
+#   pip install -U -e .
+#   Obtaining file:///kit/hamstercosm/projecthamster/nark
+#     Installing build dependencies ... done
+#     Getting requirements to build wheel ... error
+#     ERROR: Command errored out with exit status 1:
+#      command: /home/landonb/.virtualenvs/dob37/bin/python3.7 /home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py get_requires_for_build_wheel /tmp/tmp5_ni3ame
+#          cwd: /kit/hamstercosm/projecthamster/nark
+#     Complete output (10 lines):
+#     Traceback (most recent call last):
+#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 257, in <module>
+#         main()
+#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 240, in main
+#         json_out['return_val'] = hook(**hook_input['kwargs'])
+#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 85, in get_requires_for_build_wheel
+#         backend = _build_backend()
+#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 76, in _build_backend
+#         obj = getattr(obj, path_part)
+#     AttributeError: module 'setuptools.build_meta' has no attribute '__legacy__'
+#     ----------------------------------------
+#   ERROR: Command errored out with exit status 1: /home/landonb/.virtualenvs/dob37/bin/python3.7 /home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py get_requires_for_build_wheel /tmp/tmp5_ni3ame Check the logs for full command output.
+#   Makefile:79: recipe for target 'develop' failed
+#   make: *** [develop] Error 1
+
 - name: Create dob/nark virtual environment
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
     mkvirtualenv \
       -a {{ zoidy_dob_dev_basedir }}/dob \
-      --system-site-packages \
       --python=/usr/bin/python3.7 \
       dob37
   args:
