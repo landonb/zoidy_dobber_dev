@@ -8,6 +8,6 @@
       tags:
         - dev-dob
   tags: dev-dob
-  # This tasks only runs in user sets the path to the dev dir.
+  # This task only runs if user sets the path to the dev dir.
   when: zoidy_dob_dev_basedir != ''
 
