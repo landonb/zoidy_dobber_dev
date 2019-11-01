@@ -9,10 +9,10 @@
 #
 #     # This would follow, e.g.,:
 #     #   source ~/.local/bin/virtualenvwrapper.sh
-#     #   workon dob
+#     #   workon dob37
 #     deactivate
 #
-#     rmvirtualenv dob
+#     rmvirtualenv dob37
 
 - name: Check if deactivate defined
   shell: command -v deactivate >/dev/null 2>&1
@@ -34,7 +34,7 @@
 - name: Remove existing dob/nark virtual environment
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    rmvirtualenv dob
+    rmvirtualenv dob37
   args:
     chdir: "{{ zoidy_dob_dev_basedir }}/dob"
     # Run Bash so `source` works.
@@ -58,8 +58,9 @@
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
     mkvirtualenv \
       -a {{ zoidy_dob_dev_basedir }}/dob \
-      --python=/usr/bin/python3.6 \
-      --system-site-packages dob
+      --system-site-packages \
+      --python=/usr/bin/python3.7 \
+      dob37
   args:
     chdir: "{{ zoidy_dob_dev_basedir }}/dob"
     # Run Bash so `source` works.
@@ -85,7 +86,7 @@
 - name: Prepare nark and dob
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon dob && \
+    workon dob37 && \
     cd {{ item }} && \
     make develop
   args:
@@ -101,7 +102,7 @@
 
 # E.g.,
 #
-#   workon dob
+#   workon dob37
 #   cd path/to/project
 #   pip3 install -U -e .
 
@@ -109,7 +110,7 @@
   loop: "{{ zoidy_dob_dev_pip_paths }}"
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon dob && \
+    workon dob37 && \
     cd {{ item }} && \
     pip3 install -U -e .
   args:
@@ -125,7 +126,7 @@
   loop: "{{ zoidy_dob_dev_plugin_paths }}"
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon dob && \
+    workon dob37 && \
     cd {{ item }} && \
     {{ item | basename }} install
   args:
