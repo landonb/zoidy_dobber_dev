@@ -124,6 +124,7 @@
   environment:
     PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
   loop:
+    - "{{ zoidy_dob_dev_basedir }}/config-decorator"
     - "{{ zoidy_dob_dev_basedir }}/nark"
     - "{{ zoidy_dob_dev_basedir }}/dob"
 
