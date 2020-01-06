@@ -127,6 +127,8 @@
     - "{{ zoidy_dob_dev_basedir }}/config-decorator"
     - "{{ zoidy_dob_dev_basedir }}/nark"
     - "{{ zoidy_dob_dev_basedir }}/dob"
+    - "{{ zoidy_dob_dev_basedir }}/dob-prompt"
+    - "{{ zoidy_dob_dev_basedir }}/dob-viewer"
 
 # ***
 
