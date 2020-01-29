@@ -19,6 +19,7 @@
   register: deactivate_exists
   ignore_errors: yes
 
+# EXPLAIN/2020-01-28: Wouldn't the (ansible) venv be activated??
 - fail:
     msg: Cannot while activated
   when: deactivate_exists.rc == 0
@@ -34,9 +35,9 @@
 - name: Remove existing dob/nark virtual environment
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    rmvirtualenv dob37
+    rmvirtualenv {{ zoidy_dob_dev_venv_name }}
   args:
-    chdir: "{{ zoidy_dob_dev_basedir }}/dob"
+    chdir: "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob"
     # Run Bash so `source` works.
     executable: /bin/bash
   environment:
@@ -87,11 +88,11 @@
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
     mkvirtualenv \
-      -a {{ zoidy_dob_dev_basedir }}/dob \
+      -a {{ zoidy_dob_dev_nark_and_dob_dir }}/dob \
       --python=/usr/bin/python3.7 \
-      dob37
+      {{ zoidy_dob_dev_venv_name }}
   args:
-    chdir: "{{ zoidy_dob_dev_basedir }}/dob"
+    chdir: "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob"
     # Run Bash so `source` works.
     executable: /bin/bash
   environment:
@@ -115,7 +116,7 @@
 - name: Prepare nark and dob
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon dob37 && \
+    workon {{ zoidy_dob_dev_venv_name }} && \
     cd {{ item }} && \
     make develop
   args:
@@ -124,11 +125,13 @@
   environment:
     PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
   loop:
-    - "{{ zoidy_dob_dev_basedir }}/config-decorator"
-    - "{{ zoidy_dob_dev_basedir }}/nark"
-    - "{{ zoidy_dob_dev_basedir }}/dob"
-    - "{{ zoidy_dob_dev_basedir }}/dob-prompt"
-    - "{{ zoidy_dob_dev_basedir }}/dob-viewer"
+    - "{{ zoidy_dob_dev_support_libs_dir }}/config-decorator"
+    - "{{ zoidy_dob_dev_support_libs_dir }}/human-friendly_pedantic-timedelta"
+    - "{{ zoidy_dob_dev_support_libs_dir }}/pep440-version-compare-cli"
+    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/nark"
+    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob-prompt"
+    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob-viewer"
+    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob"
 
 # ***
 
@@ -142,7 +145,7 @@
   loop: "{{ zoidy_dob_dev_pip_paths }}"
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon dob37 && \
+    workon {{ zoidy_dob_dev_venv_name }} && \
     cd {{ item }} && \
     pip3 install -U -e .
   args:
@@ -158,8 +161,9 @@
   loop: "{{ zoidy_dob_dev_plugin_paths }}"
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon dob37 && \
+    workon {{ zoidy_dob_dev_venv_name }} && \
     cd {{ item }} && \
+    pip3 install -U -e . \
     {{ item | basename }} install
   args:
     # Run Bash so `source` works.
