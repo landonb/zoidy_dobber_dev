@@ -16,7 +16,7 @@
 # ***
 
 - name: Dob dev: Install Virtualenv and wrapper
-  command: "/usr/bin/pip3 install --user --upgrade {{ item }}"
+  command: "pip3 install --user --upgrade {{ item }}"
   loop:
     - virtualenv
     - virtualenvwrapper
