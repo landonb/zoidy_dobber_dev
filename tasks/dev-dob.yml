@@ -11,7 +11,7 @@
 # ***
 
 - set_fact:
-    VENV_PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+    VENV_PATH: "{{ zoidy_dob_dev_user_local_bin_dir }}:{{ ansible_env.PATH }}"
 
 # ***
 
