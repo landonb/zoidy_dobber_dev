@@ -1,129 +1,98 @@
 ---
 
+# NOTE: To set up the virtual environment, we need to source the
+# virtualenvwrapper script for each call -- and for the `source`
+# command to work, we need to run Bash. E.g., you'll see this a lot:
+#
+#     args:
+#       # Run Bash so `source` works.
+#       executable: /bin/bash
+
+# ***
+
 - set_fact:
-    DOB_VENV: "{{ ansible_env.HOME }}/.virtualenvs/dob"
+    VENV_PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
 
 # ***
 
-# DEVs: If you want to cleanup yourself, be sure to deactivate first, e.g.,:
-#
-#     # This would follow, e.g.,:
-#     #   source ~/.local/bin/virtualenvwrapper.sh
-#     #   workon dob37
-#     deactivate
-#
-#     rmvirtualenv dob37
-
-- name: Check if deactivate defined
-  shell: command -v deactivate >/dev/null 2>&1
-  register: deactivate_exists
-  ignore_errors: yes
-
-# EXPLAIN/2020-01-28: Wouldn't the (ansible) venv be activated??
-- fail:
-    msg: Cannot while activated
-  when: deactivate_exists.rc == 0
-
-# ***
-
-- name: Ensure virtualenv[wrapper] (pip3 install)
+- name: Dob dev: Install Virtualenv and wrapper
   command: "/usr/bin/pip3 install --user --upgrade {{ item }}"
   loop:
     - virtualenv
     - virtualenvwrapper
 
-- name: Remove existing dob/nark virtual environment
+# ***
+
+- name: Dob dev: Install github-release tool
+  # Specify "-u"/update to always update projects previously got.
+  command: "go get -u {{ item }}"
+  environment:
+    PATH: "{{ VENV_PATH }}"
+    GOPATH: "{{ ansible_env.HOME }}/.gopath"
+  loop:
+    - github.com/aktau/github-release
+
+# ***
+
+- name: Dob dev: Remove existing virtual environment
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
     rmvirtualenv {{ zoidy_dob_dev_venv_name }}
   args:
-    chdir: "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob"
-    # Run Bash so `source` works.
     executable: /bin/bash
   environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ VENV_PATH }}"
 
 # ***
 
-# E.g.,
-#
-#   source ~/.local/bin/virtualenvwrapper.sh
-#   cd path/to/dob
-#   # We could copy system packages, e.g.,
-#   #   #mkvirtualenv -a $(pwd) --python=/usr/bin/python3.5 dob
-#   # but we don't expect them to change, so save a little time-n-space.
-#   mkvirtualenv -a $(pwd) --python=/usr/bin/python3.5 --system-site-packages dob
-
-# 2019-10-31 17:05: Issue with using system packages:
-#
-#      --system-site-packages \
-#
-# 2019-10-31: When did this start happening? Not sure because
-# I have not build since spring.
-#
-#   pip install -U -e .
-#   Obtaining file:///kit/hamstercosm/projecthamster/nark
-#     Installing build dependencies ... done
-#     Getting requirements to build wheel ... error
-#     ERROR: Command errored out with exit status 1:
-#      command: /home/landonb/.virtualenvs/dob37/bin/python3.7 /home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py get_requires_for_build_wheel /tmp/tmp5_ni3ame
-#          cwd: /kit/hamstercosm/projecthamster/nark
-#     Complete output (10 lines):
-#     Traceback (most recent call last):
-#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 257, in <module>
-#         main()
-#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 240, in main
-#         json_out['return_val'] = hook(**hook_input['kwargs'])
-#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 85, in get_requires_for_build_wheel
-#         backend = _build_backend()
-#       File "/home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py", line 76, in _build_backend
-#         obj = getattr(obj, path_part)
-#     AttributeError: module 'setuptools.build_meta' has no attribute '__legacy__'
-#     ----------------------------------------
-#   ERROR: Command errored out with exit status 1: /home/landonb/.virtualenvs/dob37/bin/python3.7 /home/landonb/.virtualenvs/dob37/lib/python3.7/site-packages/pip/_vendor/pep517/_in_process.py get_requires_for_build_wheel /tmp/tmp5_ni3ame Check the logs for full command output.
-#   Makefile:79: recipe for target 'develop' failed
-#   make: *** [develop] Error 1
-
-- name: Create dob/nark virtual environment
+- name: Dob dev: Create virtual environment
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
     mkvirtualenv \
       -a {{ zoidy_dob_dev_nark_and_dob_dir }}/dob \
-      --python=/usr/bin/python3.8 \
+      --python={{ zoidy_dob_dev_python_bin }} \
       {{ zoidy_dob_dev_venv_name }}
   args:
     chdir: "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob"
-    # Run Bash so `source` works.
     executable: /bin/bash
   environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ VENV_PATH }}"
 
 # ***
 
-# E.g.,
-#
-#   cd path/to/nark
-#   #/
-#   ip install -U -e .
-#   make develop
-#
-#   cd path/to/dob
-#   #pip3 install -U -e .
-#   make develop
+# NOTE: In following tasks, we use `cd` in shell command, rather than using
+#       Ansible `chdir`, because workon changes the working directory.
 
-# NOTE: In following task steps, we cannot use chdir, as workon changes directories.
+# ***
 
-- name: Prepare nark and dob
+# Editable projects installed via: pip3 install -U -e .
+
+- name: Dob dev: Pip-install editable projects
+  loop: "{{ zoidy_dob_dev_libs_editable }}"
+  shell: >
+    source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
+    workon {{ zoidy_dob_dev_venv_name }} && \
+    cd {{ item }} && \
+    pip3 install -U -e .
+  args:
+    executable: /bin/bash
+  environment:
+    PATH: "{{ VENV_PATH }}"
+
+# ***
+
+# Editable projects with their own make install task: make develop.
+
+- name: Dob dev: Make-install editable projects
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
     workon {{ zoidy_dob_dev_venv_name }} && \
     cd {{ item }} && \
     make develop
   args:
-    # Run Bash so `source` works.
     executable: /bin/bash
   environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ VENV_PATH }}"
   loop:
     - "{{ zoidy_dob_dev_support_libs_dir }}/config-decorator"
     - "{{ zoidy_dob_dev_support_libs_dir }}/human-friendly_pedantic-timedelta"
@@ -136,25 +105,17 @@
 
 # ***
 
-# E.g.,
-#
-#   workon dob37
-#   cd path/to/project
-#   pip3 install -U -e .
-
-- name: Wire pip projects for hacking
-  loop: "{{ zoidy_dob_dev_pip_paths }}"
+- name: Wire dob plugins for hacking
+  loop: "{{ zoidy_dob_dev_dobs_editable }}"
   shell: >
     source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
     workon {{ zoidy_dob_dev_venv_name }} && \
     cd {{ item }} && \
     pip3 install -U -e .
   args:
-    # NOTE: Cannot use chdir, because workon changes directories on ya.
-    # Run Bash so `source` works.
     executable: /bin/bash
   environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ VENV_PATH }}"
 
 # ***
 
@@ -167,21 +128,7 @@
     pip3 install -U -e . \
     {{ item | basename }} install
   args:
-    # Run Bash so `source` works.
     executable: /bin/bash
   environment:
-    PATH: "{{ ansible_env.HOME }}/.virtualenvs/dob/bin:{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
-
-# ***
-
-# Setup GitHub API CLI tool.
-
-- name: Install Go Lang github-release project
-  # Specify "-u"/update to always update projects previously got.
-  command: "go get -u {{ item }}"
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
-    GOPATH: "{{ ansible_env.HOME }}/.gopath"
-  loop:
-    - github.com/aktau/github-release
+    PATH: "{{ ansible_env.HOME }}/.virtualenvs/{{ zoidy_dob_dev_venv_name }}/bin:{{ VENV_PATH }}"
 
