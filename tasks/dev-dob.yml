@@ -21,11 +21,12 @@
 # ***
 
 - set_fact:
+    # Lest: "ERROR: virtualenvwrapper could not find virtualenv in your path".
     VENV_PATH: "{{ zoidy_dob_dev_user_local_bin_dir }}:{{ ansible_env.PATH }}"
 
 # ***
 
-- name: Dob dev: Install Virtualenv and wrapper
+- name: Dob dev » Install Virtualenv and wrapper
   command: "pip3 install --user --upgrade {{ item }}"
   loop:
     - virtualenv
@@ -33,9 +34,9 @@
 
 # ***
 
-- name: Dob dev: Install github-release tool
+- name: Dob dev » Install github-release tool
   # Specify "-u"/update to always update projects previously got.
-  command: "{{ ansible_env.HOME }}/.local/bin/go get -u {{ item }}"
+  command: "{{ zoidy_dob_dev_go }} get -u {{ item }}"
   environment:
     PATH: "{{ VENV_PATH }}"
     GOPATH: "{{ ansible_env.HOME }}/.gopath"
@@ -44,9 +45,9 @@
 
 # ***
 
-- name: Dob dev: Remove existing virtual environment
+- name: Dob dev » Remove existing virtual environment
   shell: >
-    source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
+    source {{ zoidy_dob_dev_virtualenvwrapper }} && \
     rmvirtualenv {{ zoidy_dob_dev_venv_name }}
   args:
     executable: /bin/bash
@@ -55,90 +56,40 @@
 
 # ***
 
-- name: Dob dev: Create virtual environment
+- name: Dob dev » Create virtual environment
   shell: >
-    source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
+    source {{ zoidy_dob_dev_virtualenvwrapper }} && \
     mkvirtualenv \
-      -a {{ zoidy_dob_dev_nark_and_dob_dir }}/dob \
+      -a {{ zoidy_dob_dev_dob_working_tree }} \
       --python={{ zoidy_dob_dev_python_bin }} \
       {{ zoidy_dob_dev_venv_name }}
   args:
-    chdir: "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob"
+    chdir: "{{ zoidy_dob_dev_dob_working_tree }}"
     executable: /bin/bash
   environment:
     PATH: "{{ VENV_PATH }}"
 
 # ***
 
-# NOTE: In following tasks, we use `cd` in shell command, rather than using
-#       Ansible `chdir`, because workon changes the working directory.
+# Setup dob project development via `make develop`, which will setup
+# dob and related projects, i.e., so you don't have to `cd` to a dozen
+# places and run `pip3 install -U -e .`.
 
-# ***
+# YOU: Ensure you've copied dob/requirements/ultra-editable.pip.example
+#      to dob/requirements/ultra-editable.pip and setup paths to all the
+#      related Python projects you also want to hack on.
 
-# Editable projects installed via: pip3 install -U -e .
+# NOTE: We use `cd` in the shell command, rather than using the Ansible shell
+#       module's `chdir`, because workon changes the working directory.
 
-- name: Dob dev: Pip-install editable projects
-  loop: "{{ zoidy_dob_dev_libs_editable }}"
+- name: Dob dev » Call make develop to pip-install editable projects
   shell: >
-    source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
+    source {{ zoidy_dob_dev_virtualenvwrapper }} && \
     workon {{ zoidy_dob_dev_venv_name }} && \
-    cd {{ item }} && \
-    pip3 install -U -e .
-  args:
-    executable: /bin/bash
-  environment:
-    PATH: "{{ VENV_PATH }}"
-
-# ***
-
-# Editable projects with their own make install task: make develop.
-
-- name: Dob dev: Make-install editable projects
-  shell: >
-    source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon {{ zoidy_dob_dev_venv_name }} && \
-    cd {{ item }} && \
+    cd {{ zoidy_dob_dev_dob_working_tree }} && \
     make develop
   args:
     executable: /bin/bash
   environment:
     PATH: "{{ VENV_PATH }}"
-  loop:
-    - "{{ zoidy_dob_dev_support_libs_dir }}/config-decorator"
-    - "{{ zoidy_dob_dev_support_libs_dir }}/human-friendly_pedantic-timedelta"
-    - "{{ zoidy_dob_dev_support_libs_dir }}/pep440-version-compare-cli"
-    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/nark"
-    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob-bright"
-    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob-prompt"
-    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob-viewer"
-    - "{{ zoidy_dob_dev_nark_and_dob_dir }}/dob"
-
-# ***
-
-- name: Wire dob plugins for hacking
-  loop: "{{ zoidy_dob_dev_dobs_editable }}"
-  shell: >
-    source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon {{ zoidy_dob_dev_venv_name }} && \
-    cd {{ item }} && \
-    pip3 install -U -e .
-  args:
-    executable: /bin/bash
-  environment:
-    PATH: "{{ VENV_PATH }}"
-
-# ***
-
-- name: Install dob plugins
-  loop: "{{ zoidy_dob_dev_plugin_paths }}"
-  shell: >
-    source {{ zoidy_dob_dev_user_local_bin_dir }}/virtualenvwrapper.sh && \
-    workon {{ zoidy_dob_dev_venv_name }} && \
-    cd {{ item }} && \
-    pip3 install -U -e . \
-    {{ item | basename }} install
-  args:
-    executable: /bin/bash
-  environment:
-    PATH: "{{ ansible_env.HOME }}/.virtualenvs/{{ zoidy_dob_dev_venv_name }}/bin:{{ VENV_PATH }}"
 

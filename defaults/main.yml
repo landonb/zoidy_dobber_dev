@@ -1,18 +1,25 @@
 ---
-# defaults file for zoidy_dob-dev
+# User-configurable dob development setup options.
 
+# YOU: Change this you want to a different virtual enviornment name.
+#      Default:
+#
+#         $ workon dob
 zoidy_dob_dev_venv_name: dob
 
-# YOU: Set these to setup Hamster Dob & Nark for development.
-zoidy_dob_dev_nark_and_dob_dir: ""
-zoidy_dob_dev_support_libs_dir: ""
+# YOU: Change this to whatever version of Python you want.
+#      Default: Whatever's the latest.
+zoidy_dob_dev_python_bin: /usr/bin/python3.8
 
-# YOU: List paths to third party libraries you also hack on,
-# i.e., list projects you want to `pip install -U -e .`.
-zoidy_dob_dev_pip_paths: []
-
-# YOU: A list of dob plugins on which to run: `<dob-plugin-xxx> install`.
-zoidy_dob_dev_plugin_paths: []
-
+# YOU: Set this ... ???? Do I need this?
 zoidy_dob_dev_user_local_bin_dir: "{{ ansible_env.HOME }}/.local/bin"
+
+# YOU: Set this to the path to `go`, if necessary.
+zoidy_dob_dev_go: "{{ ansible_env.HOME }}/.local/bin/go"
+
+# YOU: Set this to the path where `pip install --user` puts the  wrapper.
+zoidy_dob_dev_virtualenvwrapper: "{{ ansible_env.HOME }}/.local/bin/virtualenvwrapper.sh"
+
+# YOU: Set this to the path where you've got dob checked out.
+zoidy_dob_dev_dob_working_tree: "{{ ansible_env.HOME }}/.downloads/dob"
 
