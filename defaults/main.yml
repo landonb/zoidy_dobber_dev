@@ -5,7 +5,7 @@
 #      Default:
 #
 #         $ workon dob
-zoidy_dob_dev_venv_name: dob
+zoidy_dob_dev_venv_name: dob3x
 
 # YOU: Change this to whatever version of Python you want.
 #      Default: Whatever's the latest.
