@@ -41,7 +41,7 @@
     PATH: "{{ VENV_PATH }}"
     GOPATH: "{{ ansible_env.HOME }}/.gopath"
   loop:
-    - github.com/aktau/github-release
+    - github.com/meterup/github-release
 
 # ***
 
