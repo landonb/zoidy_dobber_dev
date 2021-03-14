@@ -93,3 +93,35 @@
   environment:
     PATH: "{{ VENV_PATH }}"
 
+# ***
+
+# 2021-03-14 15:14: Unrelated to dob development, but allows you to access
+# GnuCash bindings (and run fintech scripts) within a dob virtualenv. Why
+# not.
+
+# FIXME/2021-03-14 15:16: Added, but untested!
+
+# NOTE: This creates the symlink regardless of if the target exists...
+# which should be fine (you won't notice; Python won't care; and it'll
+# work if you then later create the target).
+
+- name: Dob dev » Hack in GnuCash Python bindings, because you can
+  shell: >
+    # FIXME/2021-03-14 15:18: Why do all the actions use \-continuations?
+    # FIXME/2021-03-14 15:19: Does setting and referencing Bash variables work here?
+    #   Specifically: user_site_packages_path
+    #
+    # command -v deactivate >/dev/null 2>&1 && deactivate
+    user_site_packages_path="$(python3 -m site --user-site)" && \
+    source {{ zoidy_dob_dev_virtualenvwrapper }} && \
+    workon {{ zoidy_dob_dev_venv_name }} && \
+    cdsitepackages && \
+    ( [ -h gnucash ] && /bin/rm gnucash || true ) && \
+    ln -s ${user_site_packages_path}/gnucash
+  args:
+    executable: /bin/bash
+  environment:
+    PATH: "{{ VENV_PATH }}"
+
+# ***
+
