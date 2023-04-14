@@ -46,7 +46,7 @@
 # ***
 
 - name: Dob dev » Remove existing virtual environment
-  shell: >
+  ansible.builtin.shell: >
     source {{ zoidy_dob_dev_virtualenvwrapper }} && \
     rmvirtualenv {{ zoidy_dob_dev_venv_name }}
   args:
@@ -57,7 +57,7 @@
 # ***
 
 - name: Dob dev » Create virtual environment
-  shell: >
+  ansible.builtin.shell: >
     source {{ zoidy_dob_dev_virtualenvwrapper }} && \
     mkvirtualenv \
       -a {{ zoidy_dob_dev_dob_working_tree }} \
@@ -83,7 +83,7 @@
 #       module's `chdir`, because workon changes the working directory.
 
 - name: Dob dev » Call make develop to pip-install editable projects
-  shell: >
+  ansible.builtin.shell: >
     source {{ zoidy_dob_dev_virtualenvwrapper }} && \
     workon {{ zoidy_dob_dev_venv_name }} && \
     cd {{ zoidy_dob_dev_dob_working_tree }} && \
@@ -106,7 +106,7 @@
 # work if you then later create the target).
 
 - name: Dob dev » Hack in GnuCash Python bindings, because you can
-  shell: >
+  ansible.builtin.shell: >
     # FIXME/2021-03-14 15:18: Why do all the actions use \-continuations?
     # FIXME/2021-03-14 15:19: Does setting and referencing Bash variables work here?
     #   Specifically: user_site_packages_path
