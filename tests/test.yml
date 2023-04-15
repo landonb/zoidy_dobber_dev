@@ -1,5 +1,5 @@
 ---
 - hosts: localhost
   roles:
-    - zoidy_dob-dev
+    - zoidy_dobber_dev
 

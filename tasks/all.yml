@@ -2,7 +2,7 @@
 
 - name: Dob dev » Development Environment Setup
   include_role:
-    name: zoidy_dob-dev
+    name: zoidy_dobber_dev
     tasks_from: dev-dob
     apply:
       tags:

@@ -1,6 +1,6 @@
-#############
-zoidy_dob-dev
-#############
+################
+zoidy_dobber_dev
+################
 
 An Ansible role to install nark & dob for development.
 
@@ -11,7 +11,7 @@ It's simple to run the role from a playbook::
 
   - hosts: laptops
     roles:
-       - role: zoidy_dob-dev
+       - role: zoidy_dobber_dev
 
 License
 =======

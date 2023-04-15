@@ -1,9 +1,9 @@
 ---
 # Main task: Load package installers, or not, based on tags.
 
-- name: Dob dev » Load tasks dispatcher for ‘zoidy_dob-dev’
+- name: Dob dev » Load tasks dispatcher for ‘zoidy_dobber_dev’
   include_role:
-    name: zoidy_dob-dev
+    name: zoidy_dobber_dev
     tasks_from: all
   tags:
     - dev-dob
