@@ -2,7 +2,7 @@
 # Main task: Load package installers, or not, based on tags.
 
 - name: Dob dev » Load tasks dispatcher for ‘zoidy_dobber_dev’
-  include_role:
+  ansible.builtin.include_role:
     name: zoidy_dobber_dev
     tasks_from: all
   tags:
