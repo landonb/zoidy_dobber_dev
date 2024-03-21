@@ -116,7 +116,7 @@
     source {{ zoidy_dob_dev_virtualenvwrapper }} && \
     workon {{ zoidy_dob_dev_venv_name }} && \
     cdsitepackages && \
-    ( [ -h gnucash ] && /bin/rm gnucash || true ) && \
+    ( [ -h gnucash ] && rm gnucash || true ) && \
     ln -s ${user_site_packages_path}/gnucash
   args:
     executable: /bin/bash
