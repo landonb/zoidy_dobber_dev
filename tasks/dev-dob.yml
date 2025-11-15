@@ -11,23 +11,24 @@
 # ***
 
 - name: Dob dev » Stat project path
-  stat: path="{{ zoidy_dob_dev_dob_working_tree }}"
+  ansible.builtin.stat: path="{{ zoidy_dob_dev_dob_working_tree }}"
   register: dob_path
 
 - name: Dob dev » Verify project exists
-  fail: msg="Please checkout dob first and update zoidy_dob_dev_dob_working_tree"
+  ansible.builtin.fail: msg="Please checkout dob first and update zoidy_dob_dev_dob_working_tree"
   when: not dob_path.stat.exists
 
 # ***
 
-- set_fact:
+- name: Set fact
+  ansible.builtin.set_fact:
     # Lest: "ERROR: virtualenvwrapper could not find virtualenv in your path".
     VENV_PATH: "{{ zoidy_dob_dev_user_local_bin_dir }}:{{ ansible_env.PATH }}"
 
 # ***
 
 - name: Dob dev » Install Virtualenv and wrapper
-  command: "pip3 install --user --upgrade {{ item }}"
+  ansible.builtin.command: "pip3 install --user --upgrade {{ item }}"
   loop:
     - virtualenv
     - virtualenvwrapper
@@ -36,7 +37,7 @@
 
 - name: Dob dev » Install github-release tool
   # Specify "-u"/update to always update projects previously got.
-  command: "{{ zoidy_dob_dev_go }} get -u {{ item }}"
+  ansible.builtin.command: "{{ zoidy_dob_dev_go }} get -u {{ item }}"
   environment:
     PATH: "{{ VENV_PATH }}"
     GOPATH: "{{ ansible_env.HOME }}/.gopath"
