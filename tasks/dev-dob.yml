@@ -11,11 +11,13 @@
 # ***
 
 - name: Dob dev » Stat project path
-  ansible.builtin.stat: path="{{ zoidy_dob_dev_dob_working_tree }}"
+  ansible.builtin.stat:
+    path: "{{ zoidy_dob_dev_dob_working_tree }}"
   register: dob_path
 
 - name: Dob dev » Verify project exists
-  ansible.builtin.fail: msg="Please checkout dob first and update zoidy_dob_dev_dob_working_tree"
+  ansible.builtin.fail:
+    msg: "Please checkout dob first and update zoidy_dob_dev_dob_working_tree"
   when: not dob_path.stat.exists
 
 # ***
@@ -125,4 +127,3 @@
     PATH: "{{ VENV_PATH }}"
 
 # ***
-
